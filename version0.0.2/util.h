@@ -1,5 +1,4 @@
 #include <sys/types.h>
-#include <string>
 
 const int MAXLINE = 8192; // max text line length
 const int MAXBUF = 8192;  // max I/O buffer size
