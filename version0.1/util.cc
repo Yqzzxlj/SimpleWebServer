@@ -327,6 +327,7 @@ void serve_dynamic(int fd,
                   ) {
   char buf[MAXLINE];
   char* emptyList[] = {NULL};
+  char* environ[] = {NULL};
 
   // Return first part of HTTP response
   writen(fd, "HTTP/1.0 200 OK\n");
