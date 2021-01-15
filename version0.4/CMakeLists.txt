@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.16)
 project(tinywebserver)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -6,7 +7,7 @@ set(CXX_FLAGS
         -Wall
         -std=c++11
         -Wno-unused-parameter
-        -03
+        -O3
         )
 
 link_libraries(pthread)
@@ -18,6 +19,7 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 set(SOURCE_FILES
         util.cc
         Buffer.cc
+        Epoll.cc
         Socket.cc
         HttpRequest.cc
         HttpResponse.cc

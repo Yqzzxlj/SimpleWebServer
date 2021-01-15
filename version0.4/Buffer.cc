@@ -2,7 +2,6 @@
 
 #include <errno.h>
 #include <sys/uio.h>
-#include <algorithm>
 
 const char util::Buffer::CRLF[] = "\r\n";
 const size_t util::Buffer::INITIAL_SIZE = 1024;

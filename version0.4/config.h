@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 
 const int LINSTENQ = 1024;
