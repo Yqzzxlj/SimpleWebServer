@@ -2,7 +2,7 @@
 #include <noncopyable.h>
 #include <thread>
 
-class EventLoop {
+class EventLoop : noncopyable {
 public:
 
   EventLoop();
@@ -17,12 +17,12 @@ public:
   }
 
   bool isInLoopThread() const {
-    return __threadId == std::this_thread::get_id();
+    return threadId_ == std::this_thread::get_id();
   }
 
 private:
   void abortNotInLoopThread();
 
-  bool __looping; // atomic
-  const std::thread::id __threadId;
+  bool looping_; // atomic
+  const std::thread::id threadId_;
 };

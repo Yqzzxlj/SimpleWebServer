@@ -18,9 +18,31 @@ void output(const char* msg, int len) {
   AsyncLogger_->append(msg, len);
 }
 
-Logger::Impl::Impl(const char* fileName, int line)
-  : stream_(), line_(line), basename_(fileName) {
+Logger::LogLevel initLogLevel() {
+  if (::getenv("LOG_TRACE")) {
+    return Logger::TRACE;
+  } else if (::getenv("LOG_DEBUG")) {
+    return Logger::DEBUG;
+  } else {
+    return Logger::INFO;
+  }
+}
+
+Logger::LogLevel g_logLevel = initLogLevel();
+
+const char* LogLevelName[Logger::NUM_LOG_LEVELS] = {
+  "TRACE ",
+  "DEBUG ",
+  "INFO  ",
+  "WARN  ",
+  "ERROR ",
+  "FATAL ",
+};
+
+Logger::Impl::Impl(const char* fileName, int line, LogLevel level)
+  : stream_(), line_(line), basename_(fileName), level_(level) {
   formatTime();
+  stream_ << LogLevelName[level_];
 }
 
 void Logger::Impl::formatTime() {
@@ -35,7 +57,11 @@ void Logger::Impl::formatTime() {
 }
 
 Logger::Logger(const char* fileName, int line)
-  : impl_(fileName, line) {}
+  : impl_(fileName, line, INFO) {}
+
+Logger::Logger(const char* fileName, int line, LogLevel level)
+  : impl_(fileName, line, level) {}
+
 
 Logger::~Logger() {
   impl_.stream_ << " -- " << impl_.basename_ << ':' << impl_.line_ << '\n';
