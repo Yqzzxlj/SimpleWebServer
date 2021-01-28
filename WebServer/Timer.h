@@ -1,38 +1,35 @@
 #pragma once
-#include "HttpData.h"
 
 #include <mutex>
 #include <queue>
 #include <vector>
 #include <memory>
 
-namespace http {
-  class HttpData;
-} // namespace http
+class HttpData;
 
 class TimerNode {
 public:
-  TimerNode(std::shared_ptr<http::HttpData> http_data, size_t timeout);
+  TimerNode(std::shared_ptr<HttpData> http_data, size_t timeout);
   ~TimerNode();
 
-  bool is_deleted() const {return __deleted;}
+  bool is_deleted() const {return deleted_;}
 
-  size_t get_expired_time() {return expired_time;}
+  size_t get_expired_time() {return expired_time_;}
 
-  bool is_expire() {return expired_time < current_msec;}
+  bool is_expire() {return expired_time_ < current_msec;}
 
   void deleted();
 
-  std::shared_ptr<http::HttpData> get_http_data() {return http_data;}
+  std::shared_ptr<HttpData> getHttpData() {return http_data_;}
 
   static void current_time();
 
   static size_t current_msec;
 
 private:
-  bool __deleted;
-  size_t expired_time;
-  std::shared_ptr<http::HttpData> http_data;
+  bool deleted_;
+  size_t expired_time_;
+  std::shared_ptr<HttpData> http_data_;
 };
 
 struct TimerCmp {
@@ -45,15 +42,15 @@ class TimerManager {
 public:
   typedef std::shared_ptr<TimerNode> TimerNodePtr;
 
-  void add_timer(std::shared_ptr<http::HttpData> http_data, size_t timeout);
+  void addTimer(std::shared_ptr<HttpData> http_data, size_t timeout);
 
-  void handle_expired_event();
+  void handleExpiredEvent();
 
   static const size_t DEFAULT_TIME_OUT;
 
 private:
 
-  std::priority_queue<TimerNodePtr, std::vector<TimerNodePtr>, TimerCmp> timer_queue;
+  std::priority_queue<TimerNodePtr, std::vector<TimerNodePtr>, TimerCmp> timer_queue_;
   
-  std::mutex heap_mutex;
+  std::mutex heap_mutex_;
 };

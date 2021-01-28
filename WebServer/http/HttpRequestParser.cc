@@ -1,24 +1,26 @@
 #include "HtteRequestParser.h"
 
 #include "HttpRequest.h"
-#include "util.h"
+#include "../Util.h"
+#include "../Buffer.h"
+#include "../log/Logging.h"
 
-#include <iostream>
+// #include <iostream>
 #include <string>
 #include <sstream>
 #include <algorithm>
 
-http::HttpRequestParser::LINE_STATE
-http::HttpRequestParser::parse_line(util::Buffer& buffer) {
+HttpRequestParser::LINE_STATE
+HttpRequestParser::parse_line(Buffer& buffer) {
   if (buffer.findCRLF() == NULL) return LINE_MORE;
   return LINE_OK;
 }
 
 
-http::HttpRequestParser::HTTP_CODE
-http::HttpRequestParser::parse_request_line(const std::string& request_line,
+HttpRequestParser::HTTP_CODE
+HttpRequestParser::parse_request_line(const std::string& request_line,
                                             PARSE_STATE& parse_state,
-                                            http::HttpRequest& request) {
+                                            HttpRequest& request) {
   std::stringstream ss(request_line);
   std::string method_str;
   std::string version_str;
@@ -26,19 +28,19 @@ http::HttpRequestParser::parse_request_line(const std::string& request_line,
   ss >> method_str >> uri_str >> version_str;
 
   if (method_str.empty()) {
-    return http::HttpRequestParser::BAD_REQUEST;
+    return HttpRequestParser::BAD_REQUEST;
   } else if (method_str == "GET") {
-    request.method = http::HttpRequest::GET;
+    request.method = HttpRequest::GET;
   } else if (method_str == "HEAD") {
-    request.method = http::HttpRequest::HEAD;
+    request.method = HttpRequest::HEAD;
   } else {
-    return http::HttpRequestParser::NOT_IMPLEMNTED;
+    return HttpRequestParser::NOT_IMPLEMNTED;
   }
 
   if (version_str == "HTTP/1.1") {
-    request.version = http::HttpRequest::HTTP_11;
+    request.version = HttpRequest::HTTP_11;
   } else if (version_str == "HTTP/1.0") {
-    request.version = http::HttpRequest::HTTP_10;
+    request.version = HttpRequest::HTTP_10;
   } else {
     return BAD_REQUEST;
   }
@@ -51,8 +53,8 @@ http::HttpRequestParser::parse_request_line(const std::string& request_line,
   return NO_REQUEST;
 }
 
-http::HttpRequestParser::HTTP_CODE
-http::HttpRequestParser::parse_headers(const std::string& header_line,
+HttpRequestParser::HTTP_CODE
+HttpRequestParser::parse_headers(const std::string& header_line,
                                        PARSE_STATE& parse_state,
                                        HttpRequest& request) {
   if (header_line == "\r\n") {
@@ -70,9 +72,9 @@ http::HttpRequestParser::parse_headers(const std::string& header_line,
   ssize_t pos = header_line.find(':');
   std::string header_name = header_line.substr(0, pos);
   std::string header_val = header_line.substr(pos + 1);
-  header_name = util::trim(header_name);
+  header_name = trim(header_name);
   std::transform(header_name.begin(), header_name.end(), header_name.begin(), ::toupper);
-  header_val = util::trim(header_val);
+  header_val = trim(header_val);
 
   if (header_name == "UPGRADE-INSECURE-REQUESTS") {
     return NO_REQUEST;
@@ -82,23 +84,21 @@ http::HttpRequestParser::parse_headers(const std::string& header_line,
   if (it != HttpRequest::header_map.end()) {
     request.headers.insert(std::make_pair(it->second, header_val));
   } else {
-    std::cout << "Header not support: "
-              << header_name << ": " 
-              << header_val << std::endl;
+    LOG_INFO << "Header not support: " << header_name << ": " << header_val;
   }
   return NO_REQUEST;
 }
 
-http::HttpRequestParser::HTTP_CODE
-http::HttpRequestParser::parse_body(const std::string& body, HttpRequest& request) {
+HttpRequestParser::HTTP_CODE
+HttpRequestParser::parse_body(const std::string& body, HttpRequest& request) {
   request.content = body;
   return GET_REQUEST;
 }
 
-http::HttpRequestParser::HTTP_CODE
-http::HttpRequestParser::parse_content(util::Buffer& buffer,
-                                       http::HttpRequestParser::PARSE_STATE &parse_state,
-                                       HttpRequest &request) {
+HttpRequestParser::HTTP_CODE
+HttpRequestParser::parse_content(Buffer& buffer,
+                                 HttpRequestParser::PARSE_STATE &parse_state,
+                                 HttpRequest &request) {
   LINE_STATE line_state = LINE_OK;
   HTTP_CODE retcode = NO_REQUEST;
 
@@ -139,5 +139,4 @@ http::HttpRequestParser::parse_content(util::Buffer& buffer,
   } else {
     return BAD_REQUEST;
   }
-
 }

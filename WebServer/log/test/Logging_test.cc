@@ -4,9 +4,7 @@
 #include <unistd.h>
 
 int main() {
-  for (int i = 0; i < 100; ++i) {
-    LOG << i;
-  }
+  LOG_WARN << std::this_thread::get_id();
   sleep(3);
   return 0;
 }

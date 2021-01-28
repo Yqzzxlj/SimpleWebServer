@@ -2,6 +2,8 @@
 #include "../noncopyable.h"
 #include <string.h>
 #include <string>
+#include <thread>
+
 
 const int kSmallBuffer = 4000;
 const int kLargeBuffer = 4000 * 1000;
@@ -54,6 +56,7 @@ class LogStream : noncopyable {
   LogStream& operator<<(unsigned long);
   LogStream& operator<<(long long);
   LogStream& operator<<(unsigned long long);
+  LogStream& operator<<(std::thread::id);
 
   LogStream& operator<<(const void*);
 

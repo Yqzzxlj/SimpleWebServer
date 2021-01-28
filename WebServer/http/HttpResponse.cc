@@ -1,7 +1,7 @@
 #include "HttpResponse.h"
 
 
-std::unordered_map<std::string, http::MimeType> http::mime_map = {
+std::unordered_map<std::string, MimeType> mime_map = {
     {".html", "text/html"},
     {".xml", "text/xml"},
     {".xhtml", "application/xhtml+xml"},
@@ -24,7 +24,7 @@ std::unordered_map<std::string, http::MimeType> http::mime_map = {
     {"default", "text/plain"}
 };
 
-void http::HttpResponse::appendBuffer(std::string& buffer) const {
+void HttpResponse::appendBuffer(std::string& buffer) const {
   if (version == HttpRequest::HTTP_11) {
     buffer += "HTTP/1.1 ";
   } else {

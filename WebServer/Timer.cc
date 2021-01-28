@@ -1,27 +1,27 @@
 #include "Timer.h"
 #include "Epoll.h"
-#include "HttpData.h"
+#include "http/HttpData.h"
+#include "Socket.h"
+#include "log/Logging.h"
 
 #include <sys/time.h>
 #include <unistd.h>
-#include <iostream>
 
-// TODO 使用weak_ptr
 size_t TimerNode::current_msec = 0; // 当前时间
 const size_t TimerManager::DEFAULT_TIME_OUT = 5 * 1000; // 5s
 
-TimerNode::TimerNode(std::shared_ptr<http::HttpData> http_data, size_t timeout) 
-  : __deleted(false), http_data(http_data) {
+TimerNode::TimerNode(std::shared_ptr<HttpData> http_data, size_t timeout) 
+  : deleted_(false), http_data_(http_data) {
   current_time();
-  expired_time = current_msec + timeout;
+  expired_time_ = current_msec + timeout;
 }
 
 TimerNode::~TimerNode() {
-  if (http_data) {
-    auto it = Epoll::http_data_map.find(http_data->client_socket->fd);
-    if (it != Epoll::http_data_map.end()) {
-      std::cout << "connection " << http_data->client_socket->fd << " expired" << std::endl;
-      Epoll::http_data_map.erase(it);
+  if (http_data_ != nullptr) {
+    auto it = Epoll::fd2httpData_.find(http_data_->client_socket_->fd_);
+    if (it != Epoll::fd2httpData_.end()) {
+      LOG_ERROR << "connection " << http_data_->client_socket_->fd_ << " expired";
+      Epoll::fd2httpData_.erase(it);
     }
   }
 }
@@ -33,28 +33,28 @@ inline void TimerNode::current_time() {
 }
 
 void TimerNode::deleted() {
-  http_data.reset();
-  __deleted = true;
+  http_data_.reset();
+  deleted_ = true;
 }
 
-void TimerManager::add_timer(std::shared_ptr<http::HttpData> http_data, size_t timeout) {
+void TimerManager::addTimer(std::shared_ptr<HttpData> http_data, size_t timeout) {
   TimerNodePtr timer_node(new TimerNode(http_data, timeout));
   {
     std::unique_lock<std::mutex> lock;
-    timer_queue.push(timer_node);
+    timer_queue_.push(timer_node);
   }
 }
 
-void TimerManager::handle_expired_event() {
+void TimerManager::handleExpiredEvent() {
   std::unique_lock<std::mutex> lock;
   TimerNode::current_time();
-  std::cout << "handing expired event" << std::endl;
-  while (!timer_queue.empty()) {
-    TimerNodePtr timer_node = timer_queue.top();
+  LOG_INFO << "handing expired event";
+  while (!timer_queue_.empty()) {
+    TimerNodePtr timer_node = timer_queue_.top();
     if (timer_node->is_deleted()) {
-      timer_queue.pop();
+      timer_queue_.pop();
     } else if (timer_node->is_expire()){
-      timer_queue.pop();
+      timer_queue_.pop();
     } else {
       break;
     }

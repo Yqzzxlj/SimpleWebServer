@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <cassert>
 
-namespace util {
-
 class Buffer {
 public:
   static const size_t INITIAL_SIZE;
@@ -110,5 +108,3 @@ private:
 
   static const char CRLF[];
 };
-
-} // namespace util

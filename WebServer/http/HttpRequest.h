@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include <unordered_map>
-namespace http {
 
 class HttpRequest {
 public:
@@ -42,7 +41,3 @@ public:
 std::ostream& operator<<(std::ostream&, const HttpRequest&);
 std::ostream& operator<<(std::ostream&, const HttpRequest::HTTP_VERSION&);
 std::ostream& operator<<(std::ostream&, const HttpRequest::HTTP_METHOD&);
-
-
-
-} // namespace http

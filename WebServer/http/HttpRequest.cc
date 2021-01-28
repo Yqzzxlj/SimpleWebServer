@@ -2,19 +2,19 @@
 
 #include <iostream>
 
-std::unordered_map<std::string, http::HttpRequest::HTTP_HEADER>
-http::HttpRequest::header_map = {
-    {"HOST",                      http::HttpRequest::Host},
-    {"USER-AGENT",                http::HttpRequest::User_Agent},
-    {"CONNECTION",                http::HttpRequest::Connection},
-    {"ACCEPT-ENCODING",           http::HttpRequest::Accept_Encoding},
-    {"ACCEPT-LANGUAGE",           http::HttpRequest::Accept_Language},
-    {"ACCEPT",                    http::HttpRequest::Accept},
-    {"CACHE-CONTROL",             http::HttpRequest::Cache_Control},
-    {"UPGRADE-INSECURE-REQUESTS", http::HttpRequest::Upgrade_Insecure_Requests}
+std::unordered_map<std::string, HttpRequest::HTTP_HEADER>
+HttpRequest::header_map = {
+    {"HOST",                      HttpRequest::Host},
+    {"USER-AGENT",                HttpRequest::User_Agent},
+    {"CONNECTION",                HttpRequest::Connection},
+    {"ACCEPT-ENCODING",           HttpRequest::Accept_Encoding},
+    {"ACCEPT-LANGUAGE",           HttpRequest::Accept_Language},
+    {"ACCEPT",                    HttpRequest::Accept},
+    {"CACHE-CONTROL",             HttpRequest::Cache_Control},
+    {"UPGRADE-INSECURE-REQUESTS", HttpRequest::Upgrade_Insecure_Requests}
 };
 
-std::ostream& http::operator<<(std::ostream& os, const http::HttpRequest& http_request) {
+std::ostream& operator<<(std::ostream& os, const HttpRequest& http_request) {
   os << "method: "  << http_request.method  << std::endl;
   os << "uri: "     << http_request.uri     << std::endl;
   os << "version: " << http_request.version << std::endl;
@@ -25,7 +25,7 @@ std::ostream& http::operator<<(std::ostream& os, const http::HttpRequest& http_r
   return os;
 }
 
-std::ostream& http::operator<<(std::ostream& os, const HttpRequest::HTTP_METHOD& method) {
+std::ostream& operator<<(std::ostream& os, const HttpRequest::HTTP_METHOD& method) {
   switch(method) {
     case (HttpRequest::HEAD): {
       os << "HEAD";
@@ -41,7 +41,7 @@ std::ostream& http::operator<<(std::ostream& os, const HttpRequest::HTTP_METHOD&
   return os;
 }
 
-std::ostream& http::operator<<(std::ostream& os, const HttpRequest::HTTP_VERSION& version) {
+std::ostream& operator<<(std::ostream& os, const HttpRequest::HTTP_VERSION& version) {
   switch(version) {
     case (HttpRequest::HTTP_10): {
       os << "HTTP/1.0";

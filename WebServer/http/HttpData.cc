@@ -1,6 +1,7 @@
 #include "HttpData.h"
+#include "../Timer.h"
 
-void http::HttpData::close_timer() {
+void HttpData::close_timer() {
   if (timer.lock()) {
     std::shared_ptr<TimerNode> temp_timer(timer.lock());
     temp_timer->deleted();
@@ -8,6 +9,6 @@ void http::HttpData::close_timer() {
   }
 }
 
-void http::HttpData::set_timer(std::shared_ptr<TimerNode> timer) {
+void HttpData::set_timer(std::shared_ptr<TimerNode> timer) {
   this->timer = timer;
 }

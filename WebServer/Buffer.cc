@@ -3,10 +3,10 @@
 #include <errno.h>
 #include <sys/uio.h>
 
-const char util::Buffer::CRLF[] = "\r\n";
-const size_t util::Buffer::INITIAL_SIZE = 1024;
+const char Buffer::CRLF[] = "\r\n";
+const size_t Buffer::INITIAL_SIZE = 1024;
 
-ssize_t util::Buffer::readFd(int fd, int* saved_errno) {
+ssize_t Buffer::readFd(int fd, int* saved_errno) {
   char extrabuf[65536];
   struct iovec vec[2];
   const size_t writeable = writable_bytes();
@@ -28,5 +28,4 @@ ssize_t util::Buffer::readFd(int fd, int* saved_errno) {
     append(extrabuf, n - writeable);
   }
   return n;
-
 }

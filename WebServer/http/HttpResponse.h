@@ -1,10 +1,8 @@
 #pragma once
-
 #include "HttpRequest.h"
-#include<string>
-#include<unordered_map>
 
-namespace http {
+#include <string>
+#include <unordered_map>
 
 struct MimeType {
   MimeType(const std::string& str) : type(str) {}
@@ -13,7 +11,7 @@ struct MimeType {
   std::string type;
 };
 
-extern std::unordered_map<std::string, http::MimeType> mime_map;
+extern std::unordered_map<std::string, MimeType> mime_map;
 
 class HttpResponse {
 public:
@@ -31,7 +29,7 @@ public:
   
   void appendBuffer(std::string&) const;
 
-  http::HttpRequest::HTTP_VERSION version;
+  HttpRequest::HTTP_VERSION version;
   HttpStatusCode state_code;
   std::string short_msg;
 
@@ -45,5 +43,3 @@ public:
 
   bool close_connection;
 };
-
-} // namespace http
