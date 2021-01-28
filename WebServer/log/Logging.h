@@ -76,4 +76,4 @@ inline Logger::LogLevel Logger::getLogLevel() {
   Logger(__FILE__, __LINE__, Logger::INFO).stream()
 #define LOG_WARN Logger(__FILE__, __LINE__, Logger::WARN).stream()
 #define LOG_ERROR Logger(__FILE__, __LINE__, Logger::ERROR).stream()
-#define LOG_FATAL Logger(__FILE__, LINE__, Logger::FATAL).stream()
+#define LOG_FATAL Logger(__FILE__, __LINE__, Logger::FATAL).stream()
