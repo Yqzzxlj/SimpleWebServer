@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include "../log/Logging.h"
 
 class HttpRequest {
 public:
@@ -20,7 +21,7 @@ public:
   HttpRequest() : method(METHOD_NOT_SUPPORT),
                   version(VERSION_NOT_SUPPORT) {}
 
-  ~HttpRequest(){}
+  ~HttpRequest() {}
 
   friend std::ostream& operator<<(std::ostream&, const HttpRequest&);
   friend std::ostream& operator<<(std::ostream&, const HTTP_METHOD&);

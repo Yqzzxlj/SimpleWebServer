@@ -8,6 +8,8 @@
 #include "../ThreadPool.h"
 #include "../Epoll.h"
 #include "../Timer.h"
+#include "../Util.h"
+#include "../config.h"
 
 #include <sys/stat.h> // stat
 #include <sys/mman.h> // mmap, munmap
@@ -17,7 +19,7 @@
 #include <memory>
 
 void HttpServer::run() {
-  ThreadPool thread_pool(5);
+  ThreadPool thread_pool(THREAD_NUM);
   int epoll_fd = Epoll::init(1024);
   
   std::shared_ptr<HttpData> http_data(new HttpData());
@@ -32,7 +34,7 @@ void HttpServer::run() {
     for (auto req : events) {
       thread_pool.enqueue(std::bind(&HttpServer::handle_request, this, std::placeholders::_1), req);
     }
-    // std::cout << "ready to handle expired event" << std::endl;
+    LOG_TRACE << "ready to handle expired event";
     Epoll::timer_manager_.handleExpiredEvent();
   }
 }
@@ -43,16 +45,17 @@ void HttpServer::handle_request(std::shared_ptr<HttpData> http_data) {
   HttpRequestParser::PARSE_STATE  parse_state = HttpRequestParser::PARSE_REQUESTLINE;
 
   while (true) {
-    int time = 0;
-  again:
+  //   int time = 0;
+  // again:
     int error_no;
     ssize_t recv_data = buffer.readFd(http_data->client_socket_->fd_, &error_no);
     if (recv_data == -1) {
-      // std::cout << error_no << std::endl;
+      LOG_DEBUG << error_no;
       if ((error_no == EAGAIN) || (error_no == EWOULDBLOCK)) {
-        ++time;
-        if (time == 3) return;
-        goto again;
+        // ++time;
+        // if (time == 3) return;
+        // goto again;
+        return;
       }
       LOG_ERROR << "reading failed";
       return;
@@ -72,7 +75,7 @@ void HttpServer::handle_request(std::shared_ptr<HttpData> http_data) {
 
     // http_data->response = std::make_shared<http::HttpResponse>(new http::HttpResponse());
     if (retcode == HttpRequestParser::GET_REQUEST) {
-      // std::cout << "get a request" << std::endl;
+      LOG_TRACE << "get a request";
       auto it = http_data->request_->headers.find(HttpRequest::Connection);
       if (it != http_data->request_->headers.end()) {
         if (it->second == "keep-alive") {
@@ -154,7 +157,6 @@ void HttpServer::static_file(std::shared_ptr<HttpData> http_data, const std::str
   return;
 }
 
-// TODO 用writen代替send
 void HttpServer::send(std::shared_ptr<HttpData> http_data) {
   // char header[BUFFERSIZE];
   // bzero(header, '\0');
@@ -168,7 +170,7 @@ void HttpServer::send(std::shared_ptr<HttpData> http_data) {
   if (stat(filepath.c_str(), &file_stat) < 0) {
     header += "Content-length: " + std::to_string(internal_error.size()) + "\r\n\r\n";
     header += internal_error;
-    ::send(http_data->client_socket_->fd_, header.c_str(), header.size(), 0);
+    writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
   }
 
 
@@ -176,14 +178,14 @@ void HttpServer::send(std::shared_ptr<HttpData> http_data) {
   if (filefd < 0) {
     header += "Content-length: " + std::to_string(internal_error.size()) + "\r\n\r\n";
     header += internal_error;
-    ::send(http_data->client_socket_->fd_, header.c_str(), header.size(), 0);
+    writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
   }
 
   header += "Content-length: " + std::to_string(file_stat.st_size) + "\r\n\r\n";
 
-  ::send(http_data->client_socket_->fd_, header.c_str(), header.size(), 0);
+  writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
   void *mapbuf = mmap(NULL, file_stat.st_size, PROT_READ, MAP_PRIVATE, filefd, 0);
-  ::send(http_data->client_socket_->fd_, mapbuf, file_stat.st_size, 0);
+  writen(http_data->client_socket_->fd_, mapbuf, file_stat.st_size);
   munmap(mapbuf, file_stat.st_size);
   close(filefd);
   LOG_INFO << "send a file to " << http_data->client_socket_->fd_;

@@ -1,5 +1,6 @@
 #include "Logging.h"
 #include "AsyncLogging.h"
+#include "config.h"
 
 #include <string>
 #include <sys/time.h>
@@ -19,10 +20,12 @@ void output(const char* msg, int len) {
 }
 
 Logger::LogLevel initLogLevel() {
-  if (::getenv("LOG_TRACE")) {
+  if (LOG_LEVEL == "TRACE") {
     return Logger::TRACE;
-  } else if (::getenv("LOG_DEBUG")) {
+  } else if (LOG_LEVEL == "DEBUG") {
     return Logger::DEBUG;
+  } else if (LOG_LEVEL == "ERROR") {
+    return Logger::ERROR;
   } else {
     return Logger::INFO;
   }

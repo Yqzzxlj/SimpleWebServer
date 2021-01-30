@@ -15,7 +15,7 @@ public:
       : serverSocket_(port, ip) {
     serverSocket_.bind();
     serverSocket_.listen();
-    LOG_ERROR << "server socket fd: " << serverSocket_.listen_fd_;
+    LOG_INFO << "server socket fd: " << serverSocket_.listen_fd_;
   }
 
   void run();

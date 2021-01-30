@@ -7,7 +7,7 @@
 
 class HttpData;
 
-class TimerNode {
+class TimerNode : public std::enable_shared_from_this<TimerNode> {
 public:
   TimerNode(std::shared_ptr<HttpData> http_data, size_t timeout);
   ~TimerNode();

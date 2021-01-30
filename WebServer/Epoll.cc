@@ -8,7 +8,6 @@
 #include "log/Logging.h"
 
 #include <unistd.h>
-#include <iostream>
 
 
 const int Epoll::MAX_EVENTS = 10240;
@@ -42,7 +41,7 @@ int Epoll::addfd(int epoll_fd, int fd, __uint32_t events,
     fd2httpData_[fd].reset();
     return -1;
   }
-  // std::cout << "add a fd!" << fd << std::endl;
+  LOG_TRACE << "add a fd: " << fd;
   return 0;
 }
 
@@ -88,12 +87,10 @@ std::vector<std::shared_ptr<HttpData>> Epoll::poll(
     exit(1);
   }
 
-  std::cout << "event num: " << event_num << std::endl;
   std::vector<std::shared_ptr<HttpData>> httpDatas;
 
   for (int i = 0; i < event_num; ++i) {
     int fd = events_[i].data.fd;
-    // std::cout << "event.id: " << fd << std::endl;
     if (fd == server_socket.listen_fd_) {
       handleConnection(server_socket);
     } else {
@@ -102,11 +99,11 @@ std::vector<std::shared_ptr<HttpData>> Epoll::poll(
           || (events_[i].events & EPOLLRDHUP)      // TCP连接被对方关闭，或者对方关闭了写操作
           || (events_[i].events & EPOLLHUP)        // 挂起
          ) {
-        std::cout << "event error" << std::endl;
+        LOG_ERROR << "event error";
         auto it = fd2httpData_.find(fd);
         if (it != fd2httpData_.end()) {
           it->second->close_timer();
-          // http_data_map.erase(it);
+          // fd2httpData_.erase(it);
         }
         continue;
       }
@@ -116,12 +113,14 @@ std::vector<std::shared_ptr<HttpData>> Epoll::poll(
         if ((events_[i].events & EPOLLIN) || (events_[i].events & EPOLLPRI)) {
           httpDatas.push_back(it->second);
 
+          // LOG_DEBUG << "http data pointer count: " << it->second.use_count();
           it->second->close_timer();
-
-          // http_data_map.erase(it);
+          // LOG_DEBUG << "http data pointer count: " << it->second.use_count();
+          fd2httpData_.erase(it);
+          // LOG_DEBUG << "http data pointer count: " << it->second.use_count();
         }
       } else {
-        std::cout << "长连接第二次连接未找到" << std::endl;
+        LOG_ERROR << "长连接第二次连接未找到";
         ::close(fd);
         continue;
       }

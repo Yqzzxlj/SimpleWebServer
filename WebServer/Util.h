@@ -13,6 +13,7 @@ std::string& trim(std::string& str);
 
 int setNonblocking(int fd);
 void setReuse(int fd);
+void handle_for_sigpipe();
 
 ssize_t readn(int fd, void* buff, int n);
 ssize_t writen(int fd, void* buff, int n);

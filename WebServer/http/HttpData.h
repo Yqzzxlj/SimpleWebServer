@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "../log/Logging.h"
 
 
 class TimerNode;
@@ -23,5 +24,5 @@ public:
   void set_timer(std::shared_ptr<TimerNode>);
 
 private:
-  std::weak_ptr<TimerNode> timer;
+  std::weak_ptr<TimerNode> timer_;
 };

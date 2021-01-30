@@ -19,7 +19,7 @@ void setReusePort(int fd) {
 ClientSocket::~ClientSocket() {
   if (fd_ >= 0) {
     ::close(fd_);
-    LOG_INFO << "client socket " << fd_ << " closed.";
+    LOG_DEBUG << "client socket " << fd_ << " closed.";
     fd_ = -1;
   }
 }
@@ -70,17 +70,17 @@ int ServerSocket::accept(ClientSocket& client_socket) const {
     if ((errno == EWOULDBLOCK) || (errno == EAGAIN)) {
       return clientfd;
     }
-    LOG_DEBUG << "accept socket failed, errno: " << errno;
+    LOG_ERROR << "accept socket failed, errno: " << errno;
     exit(0);
   }
   client_socket.fd_ = clientfd;
-  LOG_INFO << "accept a client: " << clientfd;
+  LOG_DEBUG << "accept a client: " << clientfd;
   return clientfd;
 }
 
 ServerSocket::~ServerSocket() {
   if (listen_fd_ >= 0) {
-    LOG_INFO << "server socket closed";
+    LOG_DEBUG << "server socket closed";
     ::close(listen_fd_);
     listen_fd_ = -1;
   }

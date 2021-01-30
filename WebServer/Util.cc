@@ -5,6 +5,8 @@
 #include <errno.h>      // errno, EINTR
 #include <fcntl.h>      // fcntl()
 #include <sys/socket.h>
+#include <signal.h>
+#include <cstring>
 
 std::string& ltrim(std::string& str) {
   if (!str.empty()) {
@@ -36,6 +38,16 @@ int setNonblocking(int fd) {
       LOG_ERROR << "set nonblock failed";
     }
     return old_option;
+}
+
+void handle_for_sigpipe() {
+  struct sigaction sa;
+  memset(&sa, 0, sizeof(sa));
+  sa.sa_handler = SIG_IGN;
+  sa.sa_flags = 0;
+  if (sigaction(SIGPIPE, &sa, NULL)) {
+    return;
+  }
 }
 
 ssize_t readn(int fd, void* buff, int n) {
