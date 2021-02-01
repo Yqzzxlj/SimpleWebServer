@@ -26,6 +26,11 @@ HttpRequestParser::parse_request_line(const std::string& request_line,
   std::string version_str;
   std::string uri_str;
   ss >> method_str >> uri_str >> version_str;
+  // char method_str[1024];
+  // char uri_str[1024];
+  // char version_str[1024];
+  // sscanf(request_line.c_str(), "%s %s %s", method_str, uri_str, version_str);
+
 
   if (method_str.empty()) {
     return HttpRequestParser::BAD_REQUEST;
@@ -60,9 +65,8 @@ HttpRequestParser::parse_headers(const std::string& header_line,
   if (header_line == "\r\n") {
     switch (request.method) {
       case HttpRequest::GET:
-        return GET_REQUEST;
       case HttpRequest::HEAD:
-        return HEAD_REQUEST;
+        return GET_REQUEST;
       default:
         parse_state = PARSE_BODY;
         return NO_REQUEST;

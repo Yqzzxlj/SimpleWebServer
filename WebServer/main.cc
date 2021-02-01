@@ -1,8 +1,6 @@
 #include "http/HttpServer.h"
 #include "Util.h"
-#include "config.h"
-
-
+#include "log/Logging.h"
 #include <getopt.h>
 
 int main(int argc, char* argv[]) {
@@ -13,12 +11,12 @@ int main(int argc, char* argv[]) {
   while ((opt = getopt(argc, argv, str)) != -1) {
     switch (opt) {
       case 'l': {
-        if (optarg == "DEBUG") {
-          LOG_LEVEL = "DEBUG";
-        } else if (optarg == "TRACE") {
-          LOG_LEVEL = "TRACE";
-        } else if (optarg == "ERROR") {
-          LOG_LEVEL = "ERROR";
+        if (strcmp(optarg, "DEBUG") == 0) {
+          Logger::setLogLevel(Logger::DEBUG);
+        } else if (strcmp(optarg, "TRACE") == 0) {
+          Logger::setLogLevel(Logger::TRACE);
+        } else if (strcmp(optarg, "ERROR") == 0) {
+          Logger::setLogLevel(Logger::ERROR);
         }
         break;
       }

@@ -13,6 +13,8 @@ struct MimeType {
 
 extern std::unordered_map<std::string, MimeType> mime_map;
 
+class Buffer;
+
 class HttpResponse {
 public:
   enum HttpStatusCode {

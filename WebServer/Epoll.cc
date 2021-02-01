@@ -120,7 +120,7 @@ std::vector<std::shared_ptr<HttpData>> Epoll::poll(
           // LOG_DEBUG << "http data pointer count: " << it->second.use_count();
         }
       } else {
-        LOG_ERROR << "长连接第二次连接未找到";
+        LOG_ERROR << "invalid fd " << fd;
         ::close(fd);
         continue;
       }
@@ -134,6 +134,7 @@ void Epoll::handleConnection(const ServerSocket& server_socket) {
 
   while (server_socket.accept(*temp_client) >= 0) {
     setNonblocking(temp_client->fd_);
+    setNoDelay(temp_client->fd_);
     
     std::shared_ptr<HttpData> http_data(new HttpData());
     http_data->request_ = std::shared_ptr<HttpRequest>(new HttpRequest());

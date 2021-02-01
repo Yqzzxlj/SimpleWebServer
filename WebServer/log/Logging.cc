@@ -1,9 +1,9 @@
 #include "Logging.h"
 #include "AsyncLogging.h"
-#include "config.h"
 
 #include <string>
 #include <sys/time.h>
+#include <iostream>
 
 std::once_flag init_flag;
 static AsyncLogging* AsyncLogger_;
@@ -19,19 +19,11 @@ void output(const char* msg, int len) {
   AsyncLogger_->append(msg, len);
 }
 
-Logger::LogLevel initLogLevel() {
-  if (LOG_LEVEL == "TRACE") {
-    return Logger::TRACE;
-  } else if (LOG_LEVEL == "DEBUG") {
-    return Logger::DEBUG;
-  } else if (LOG_LEVEL == "ERROR") {
-    return Logger::ERROR;
-  } else {
-    return Logger::INFO;
-  }
-}
+Logger::LogLevel g_logLevel = Logger::INFO;
 
-Logger::LogLevel g_logLevel = initLogLevel();
+void Logger::setLogLevel(LogLevel log_level) {
+  g_logLevel = log_level;
+}
 
 const char* LogLevelName[Logger::NUM_LOG_LEVELS] = {
   "TRACE ",

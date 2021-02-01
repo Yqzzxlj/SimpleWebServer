@@ -1,5 +1,7 @@
 #include "HttpResponse.h"
 
+#include "../Buffer.h"
+
 
 std::unordered_map<std::string, MimeType> mime_map = {
     {".html", "text/html"},

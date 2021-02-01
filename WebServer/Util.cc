@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #include <signal.h>
 #include <cstring>
+#include <netinet/in.h>  // IPPROTO_TCP
+#include <netinet/tcp.h> // TCP_NODELAY
 
 std::string& ltrim(std::string& str) {
   if (!str.empty()) {
@@ -48,6 +50,11 @@ void handle_for_sigpipe() {
   if (sigaction(SIGPIPE, &sa, NULL)) {
     return;
   }
+}
+
+void setNoDelay(int fd) {
+  int enable = 1;
+  setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (void *)&enable, sizeof(enable));
 }
 
 ssize_t readn(int fd, void* buff, int n) {

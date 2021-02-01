@@ -86,8 +86,10 @@ void HttpServer::handle_request(std::shared_ptr<HttpData> http_data) {
         }
       }
       header(http_data);
-      getMime(http_data);
-      static_file(http_data, STATIC_PATH);
+      if (http_data->request_->method == HttpRequest::GET) {
+        getMime(http_data);
+        static_file(http_data, STATIC_PATH);
+      }
       send(http_data);
       if (!http_data->response_->close_connection) {
         Epoll::modfd(http_data->epoll_fd_, http_data->client_socket_->fd_, Epoll::DEFAULT_EVENTS, http_data);
@@ -158,12 +160,22 @@ void HttpServer::static_file(std::shared_ptr<HttpData> http_data, const std::str
 }
 
 void HttpServer::send(std::shared_ptr<HttpData> http_data) {
-  // char header[BUFFERSIZE];
-  // bzero(header, '\0');
+
   std::string header;
   http_data->response_->appendBuffer(header);
   std::string internal_error = "Internal Error";
 
+  if (http_data->request_->method == HttpRequest::HEAD) {
+    writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
+    return;
+  }
+  // send a string
+  // void* mapbuf = (void *)"hello world";
+  // header += "Content-length: 11\r\n\r\n";
+  // writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
+  // writen(http_data->client_socket_->fd_, mapbuf, 11);
+
+  // send a file
   std::string filepath = http_data->response_->filepath;
 
   struct stat file_stat;
@@ -173,7 +185,6 @@ void HttpServer::send(std::shared_ptr<HttpData> http_data) {
     writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
   }
 
-
   int filefd = ::open(filepath.c_str(), O_RDONLY, 0);
   if (filefd < 0) {
     header += "Content-length: " + std::to_string(internal_error.size()) + "\r\n\r\n";
@@ -181,13 +192,13 @@ void HttpServer::send(std::shared_ptr<HttpData> http_data) {
     writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
   }
 
-  header += "Content-length: " + std::to_string(file_stat.st_size) + "\r\n\r\n";
-
+  header += "Content-length: " + std::to_string(file_stat.st_size) + "\r\n\r\n";  header += "Content-length: 11\r\n\r\n";
   writen(http_data->client_socket_->fd_, &*header.begin(), header.size());
   void *mapbuf = mmap(NULL, file_stat.st_size, PROT_READ, MAP_PRIVATE, filefd, 0);
   writen(http_data->client_socket_->fd_, mapbuf, file_stat.st_size);
   munmap(mapbuf, file_stat.st_size);
   close(filefd);
-  LOG_INFO << "send a file to " << http_data->client_socket_->fd_;
+  
+  LOG_TRACE << "send a file to " << http_data->client_socket_->fd_;
   return;
 }
